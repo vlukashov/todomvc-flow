@@ -1,0 +1,35 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../no-shadow.html">
+<link rel="import" href="../td-todos/td-todos.html">
+<link rel="import" href="../td-model/td-model.html">
+
+<dom-module id="td-app">
+    <template>
+        <div class="todoapp">
+            <header class="header">
+                <h1>todos</h1>
+            </header>
+            <td-model id="model" items="{{todos}}"></td-model>
+            <td-todos model-id="model" items="{{todos}}"></td-todos>
+        </div>
+        <footer class="info">
+            <p>Double-click to edit a todo</p>
+            <p>Created by <a href="https://github.com/vlukashov">Viktor Lukashov</a></p>
+            <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+        </footer>
+    </template>
+    <script>
+        class TdApp extends window.NoShadow(Polymer.Element) {
+            static get is() { return 'td-app'; }
+            static get properties() {
+                return {
+                    todos: {
+                        type: Array
+                    }
+                };
+            }
+        }
+
+        window.customElements.define(TdApp.is, TdApp);
+    </script>
+</dom-module>

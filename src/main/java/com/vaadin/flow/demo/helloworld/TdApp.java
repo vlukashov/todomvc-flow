@@ -15,25 +15,20 @@
  */
 package com.vaadin.flow.demo.helloworld;
 
+import com.vaadin.annotations.HtmlImport;
 import com.vaadin.annotations.StyleSheet;
+import com.vaadin.annotations.Tag;
 import com.vaadin.flow.html.Div;
 import com.vaadin.flow.html.Label;
 import com.vaadin.flow.router.View;
+import com.vaadin.flow.template.PolymerTemplate;
+import com.vaadin.flow.template.model.TemplateModel;
 import com.vaadin.ui.Composite;
 
-/**
- * The main view contains a simple label element and a template element.
- */
-@StyleSheet("context://styles.css")
-public class MainView extends Composite<Div> implements View {
-
-    public MainView() {
-        // This is just a simple label created via Elements API
-        Label label = new Label("Hello");
-        getContent().add(label);
-        // This is a simple template example
-        ExampleTemplate template = new ExampleTemplate();
-        getContent().add(template);
-    }
-
+@Tag("td-app")
+@HtmlImport("frontend://src/td-app/td-app.html")
+@StyleSheet("frontend://bower_components/todomvc-app-css/index.css")
+public class TdApp extends PolymerTemplate<TemplateModel> implements View {
 }
+
+
