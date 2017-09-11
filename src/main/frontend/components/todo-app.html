@@ -1,0 +1,16 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="todo-app">
+    <template>
+        <h1>Todos</h1>
+    </template>
+    
+    <script>
+        class TodoApp extends Polymer.Element {
+            static get is() {
+                return 'todo-app'
+            }
+        }
+        customElements.define(TodoApp.is, TodoApp);
+    </script>
+</dom-module>

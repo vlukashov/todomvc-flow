@@ -1,9 +1,6 @@
 {
-  "sources": [
-   "bower.json"
-  ],
   "extraDependencies": [
-    "bower_components/webcomponentsjs/webcomponents-lite.js"
+    "bower_components/webcomponentsjs/webcomponents-*.map"
   ],
   "builds": [{
     "name": "es5",
