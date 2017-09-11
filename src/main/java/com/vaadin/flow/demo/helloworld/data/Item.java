@@ -13,19 +13,35 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.demo.helloworld;
+package com.vaadin.flow.demo.helloworld.data;
 
-import com.vaadin.annotations.HtmlImport;
-import com.vaadin.annotations.StyleSheet;
-import com.vaadin.annotations.Tag;
-import com.vaadin.flow.router.View;
-import com.vaadin.flow.template.PolymerTemplate;
-import com.vaadin.flow.template.model.TemplateModel;
+public class Item {
+    private String title;
+    private boolean completed;
 
-@Tag("td-app")
-@HtmlImport("frontend://src/td-app/td-app.html")
-@StyleSheet("frontend://bower_components/todomvc-app-css/index.css")
-public class TdApp extends PolymerTemplate<TemplateModel> implements View {
+    public Item() {
+    }
+
+    public Item(String title, boolean completed) {
+        this.title = title;
+        this.completed = completed;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
 }
 
 

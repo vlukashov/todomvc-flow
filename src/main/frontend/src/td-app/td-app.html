@@ -9,8 +9,7 @@
             <header class="header">
                 <h1>todos</h1>
             </header>
-            <td-model id="model" items="{{todos}}"></td-model>
-            <td-todos model-id="model" items="{{todos}}"></td-todos>
+            <td-todos></td-todos>
         </div>
         <footer class="info">
             <p>Double-click to edit a todo</p>
@@ -21,13 +20,6 @@
     <script>
         class TdApp extends window.NoShadow(Polymer.Element) {
             static get is() { return 'td-app'; }
-            static get properties() {
-                return {
-                    todos: {
-                        type: Array
-                    }
-                };
-            }
         }
 
         window.customElements.define(TdApp.is, TdApp);

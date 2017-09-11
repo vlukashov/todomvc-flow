@@ -67,52 +67,14 @@
 			static get is() { return 'td-todos'; }
 			static get properties() {
 				return {
-					items: {
-						type: Array
-					},
-					model: {
-						type: Object
-					},
-					modelId: {
-						type: String
-					},
 					route: {
 						type: String
-					},
-					allCompleted: {
-						type: Boolean,
-						computed: '_computeAllCompleted(anyCompleted, activeCount)'
-					},
-					activeCount: {
-						type: Number,
-						computed: '_computeActiveCount(items, items.*)'
-					},
-					anyCompleted: {
-						type: Boolean,
-						computed: '_computeAnyCompleted(items, items.*)'
 					}
 				};
 			}
 
-			connectedCallback() {
-				this.model = document.getElementById(this.modelId);
-				super.connectedCallback();
-			}
-
 			_computeLinkClass(currRoute, ...routes) {
 				return routes.some(route => currRoute === route) ? 'selected' : '';
-			}
-
-			_computeAnyCompleted(items) {
-				return this.model ? this.model.getCompletedCount() > 0 : false;
-			}
-
-			_computeActiveCount(items) {
-				return this.model ? this.model.getActiveCount() : 0;
-			}
-
-			_computeAllCompleted(anyCompleted, activeCount) {
-				return anyCompleted && !activeCount;
 			}
 
 			_computeItemsLeft(count) {
@@ -124,27 +86,6 @@
 				return function(item, index, array) {
 					return this.model ? this.model.matchesFilter(item, filter) : false;
 				}.bind(this);
-			}
-
-			addTodoAction () {
-				this.model.newItem(this.$['new-todo'].value);
-				this.$['new-todo'].value = '';
-			}
-
-			cancelAddTodoAction () {
-				this.$['new-todo'].value = '';
-			}
-
-			destroyItemAction(e, detail) {
-				this.model.destroyItem(detail);
-			}
-
-			toggleAllCompletedAction(e) {
-				this.model.setItemsCompleted(e.target.checked);
-			}
-
-			clearCompletedAction () {
-				this.model.clearCompletedItems();
 			}
 		}
 
