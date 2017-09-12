@@ -1,4 +1,6 @@
 {
+  "entrypoint": "components/todo-app.html",
+  "shell": "components/todo-app.html",
   "extraDependencies": [
     "bower_components/webcomponentsjs/webcomponents-*.map"
   ],
@@ -6,13 +8,15 @@
     "name": "es5",
     "js": {"compile": true, "minify": true},
     "css": {"minify": true},
-    "html": {"minify": true}
+    "html": {"minify": true},
+    "bundle": true
   },
   {
     "name": "es6",
     "js": {"minify": true},
     "css": {"minify": true},
-    "html": {"minify": true}
+    "html": {"minify": true},
+    "bundle": true
   }],
   "lint": {
     "rules": [
