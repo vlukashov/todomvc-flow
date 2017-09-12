@@ -16,6 +16,7 @@
 package com.vaadin.flow.demo.helloworld;
 
 import com.vaadin.annotations.HtmlImport;
+import com.vaadin.annotations.StyleSheet;
 import com.vaadin.annotations.Tag;
 import com.vaadin.flow.router.View;
 import com.vaadin.flow.template.PolymerTemplate;
@@ -23,6 +24,7 @@ import com.vaadin.flow.template.model.TemplateModel;
 
 @Tag("todo-app")
 @HtmlImport("frontend://components/todo-app.html")
+@StyleSheet("context://styles.css")
 public class TodoApp extends PolymerTemplate<TodoApp.Model> implements View {
     public interface Model extends TemplateModel {
     }
