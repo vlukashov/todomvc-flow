@@ -39,7 +39,7 @@ public class Servlet extends VaadinServlet {
             /*
              * For the root, only show the main view without any sub view
              */
-            configuration.setRoute("", TodoApp.class);
+            configuration.setRoute("*", TodoApp.class);
         }
     }
 }

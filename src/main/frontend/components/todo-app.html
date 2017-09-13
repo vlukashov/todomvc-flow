@@ -253,43 +253,6 @@
             static get is() {
                 return 'todo-app'
             }
-            static get properties() {
-                return {
-                    items: {
-                        type: Array,
-                        value: () => [
-                            {
-                                title: 'Get a running Flow app skeleton',
-                                completed: true
-                            },
-                            {
-                                title: 'Copy custom elements from a Polymer 2 app',
-                                completed: false
-                            },
-                            {
-                                title: 'Move business logic to Flow',
-                                completed: false
-                            }
-                        ]
-                    },
-                    allCompleted: {
-                        type: Boolean,
-                        value: false
-                    },
-                    anyCompleted: {
-                        type: Boolean,
-                        value: true
-                    },
-                    activeCount: {
-                        type: Number,
-                        value: 2
-                    },
-                    route: {
-                        type: String,
-                        value: ''
-                    }
-                };
-            }
         }
         customElements.define(TodoApp.is, TodoApp);
     </script>
