@@ -1,0 +1,187 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
+
+<link rel="import" href="todo-input.html">
+
+<dom-module id="todo-item">
+    <template>
+        <style include="todo-input-styles"></style>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                font-size: 24px;
+                border-bottom: 1px solid #ededed;
+            }
+
+            :host:last-child {
+                border-bottom: none;
+            }
+
+            button {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                background: none;
+                font-size: 100%;
+                vertical-align: baseline;
+                font-family: inherit;
+                font-weight: inherit;
+                color: inherit;
+                -webkit-appearance: none;
+                appearance: none;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+
+            button:focus {
+                outline: none;
+            }
+
+            #item.editing {
+                border-bottom: none;
+                padding: 0;
+            }
+
+            #item.editing .edit {
+                display: block;
+                width: 506px;
+                padding: 12px 16px;
+                margin: 0 0 0 43px;
+            }
+
+            #item.editing .view {
+                display: none;
+            }
+
+            #item .toggle {
+                text-align: center;
+                width: 40px;
+                /* auto, since non-WebKit browsers doesn't support input styling */
+                height: auto;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                margin: auto 0;
+                border: none; /* Mobile Safari */
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+            #item .toggle {
+                opacity: 0;
+            }
+
+            #item .toggle + label {
+                /*
+                    Firefox requires `#` to be escaped - https://bugzilla.mozilla.org/show_bug.cgi?id=922433
+                    IE and Edge requires *everything* to be escaped to render, so we do that instead of just the `#` - https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7157459/
+                */
+                background-image: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%22-10%20-18%20100%20135%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%23ededed%22%20stroke-width%3D%223%22/%3E%3C/svg%3E');
+                background-repeat: no-repeat;
+                background-position: center left;
+            }
+
+            #item .toggle:checked + label {
+                background-image: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%22-10%20-18%20100%20135%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%23bddad5%22%20stroke-width%3D%223%22/%3E%3Cpath%20fill%3D%22%235dc2af%22%20d%3D%22M72%2025L42%2071%2027%2056l-4%204%2020%2020%2034-52z%22/%3E%3C/svg%3E');
+            }
+
+            #item label {
+                word-break: break-all;
+                padding: 15px 15px 15px 60px;
+                display: block;
+                line-height: 1.2;
+                transition: color 0.4s;
+            }
+
+            #item.completed label {
+                color: #d9d9d9;
+                text-decoration: line-through;
+            }
+
+            #item .destroy {
+                display: none;
+                position: absolute;
+                top: 0;
+                right: 10px;
+                bottom: 0;
+                width: 40px;
+                height: 40px;
+                margin: auto 0;
+                font-size: 30px;
+                color: #cc9a9a;
+                margin-bottom: 11px;
+                transition: color 0.2s ease-out;
+            }
+
+            #item .destroy:hover {
+                color: #af5b5e;
+            }
+
+            #item .destroy:after {
+                content: '×';
+            }
+
+            #item:hover .destroy {
+                display: block;
+            }
+
+            #item .edit {
+                display: none;
+            }
+
+            #item.editing:last-child {
+                margin-bottom: -1px;
+            }
+        </style>
+        <span id="item" class$="[[_getLiClassList(item.completed, editing)]]">
+            <template is="dom-if" if="{{!editing}}">
+                <div on-dblclick="_editAction">
+                    <input type="checkbox" class="toggle"
+                           checked="{{item.completed::change}}">
+                    <label>{{item.title}}</label>
+                    <button class="destroy" on-tap="_destroyAction"></button>
+                </div>
+            </template>
+            <template is="dom-if" if="{{editing}}">
+                <todo-input on-td-input-commit="_commitAction"
+                          on-td-input-cancel="_cancelAction">
+                    <input id="edit" class="edit" value="{{_editingValue::input}}" on-blur="_onBlur">
+                </todo-input>
+            </template>
+        </span>
+    </template>
+    
+    <script>
+        class TodoItem extends Polymer.GestureEventListeners(Polymer.Element) {
+            static get is() { return 'todo-item'; }
+            static get properties() {
+                return {
+                    item: {
+                        type: Object
+                    },
+                    editing: {
+                        type: Boolean,
+                        value: false
+                    },
+                    _editingValue: {
+                        type: String
+                    }
+                };
+            }
+
+            _getLiClassList(completed, editing) {
+                const classes = [];
+                if (completed) {
+                    classes.push('completed');
+                }
+                if (editing) {
+                    classes.push('editing');
+                }
+                return classes.join(' ');
+            }
+        }
+
+        window.customElements.define(TodoItem.is, TodoItem);
+    </script>
+</dom-module>

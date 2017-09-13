@@ -1,0 +1,134 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="todo-input-styles">
+    <template>
+        <style>
+            todo-input > input::-webkit-input-placeholder {
+                font-style: italic;
+                font-weight: 300;
+                color: #e6e6e6;
+            }
+
+            todo-input > input::-moz-placeholder {
+                font-style: italic;
+                font-weight: 300;
+                color: #e6e6e6;
+            }
+
+            todo-input > input::input-placeholder {
+                font-style: italic;
+                font-weight: 300;
+                color: #e6e6e6;
+            }
+
+            todo-input > input {
+                position: relative;
+                margin: 0;
+                width: 100%;
+                font-size: 24px;
+                font-family: inherit;
+                font-weight: inherit;
+                line-height: 1.4em;
+                color: inherit;
+                padding: 6px;
+                border: 1px solid #999;
+                box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
+                box-sizing: border-box;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+
+            todo-input > input:focus {
+                outline: 0;
+            }
+        </style>
+    </template>
+</dom-module>
+
+<dom-module id="todo-input">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <slot></slot>
+    </template>
+
+    <script>
+        class TodoInput extends Polymer.Element {
+            static get is() { return 'todo-input'; }
+            static get properties() {
+                return {
+                    input: {
+                        type: Object,
+                        value: null
+                    }
+                };
+            }
+
+            constructor() {
+                super();
+                this._lightChildrenObserver = new MutationObserver(() => {
+                    this.updateDynamicSlots();
+                });
+                this._keyupActionListener = this._keyupAction.bind(this);
+                this._keypressActionListener = this._keypressAction.bind(this);
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                this._lightChildrenObserver.observe(this, { childList: true });
+                this.updateDynamicSlots();
+            }
+
+            disconnectedCallback() {
+                this._lightChildrenObserver.disconnect();
+                super.disconnectedCallback();
+            }
+
+            updateDynamicSlots() {
+                const input = this.querySelector('input');
+                if (input !== this.input) {
+                    if (this.input) {
+                        this.input.removeEventListener('keyup', this._keyupActionListener);
+                        this.input.removeEventListener('keypress', this._keypressActionListener);
+                    }
+
+                    if (input) {
+                        input.addEventListener('keyup', this._keyupActionListener);
+                        input.addEventListener('keypress', this._keypressActionListener);
+                        this.input = input;
+                    }
+                }
+            }
+
+            focus() {
+                if (this.input) {
+                    this.input.focus();
+                }
+            }
+
+            _keypressAction(e, detail, sender) {
+                const ENTER_KEY = 13;
+
+                // Listen for enter on keypress but esc on keyup, because
+                // IE doesn't fire keyup for enter.
+                if (e.keyCode === ENTER_KEY) {
+                    this.dispatchEvent(new CustomEvent('td-input-commit'), {bubbles: true});
+                }
+            }
+
+            _keyupAction(e, detail, sender) {
+                const ESC_KEY = 27;
+
+                if (e.keyCode === ESC_KEY) {
+                    this.dispatchEvent(new CustomEvent('td-input-cancel'), {bubbles: true});
+                }
+            }
+        }
+
+        customElements.define(TodoInput.is, TodoInput);
+    </script>
+</dom-module>

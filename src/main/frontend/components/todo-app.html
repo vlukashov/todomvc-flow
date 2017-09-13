@@ -2,9 +2,17 @@
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
 
+<link rel="import" href="todo-input.html">
+<link rel="import" href="todo-item.html">
+
 <dom-module id="todo-app">
     <template>
+        <style include="todo-input-styles"></style>
         <style>
+            :focus {
+                outline: none;
+            }
+
             /* header */
             .todoapp {
                 background: #fff;
@@ -28,37 +36,7 @@
             }
 
             /* main */
-            .todoapp input::-webkit-input-placeholder {
-                font-style: italic;
-                font-weight: 300;
-                color: #e6e6e6;
-            }
-
-            .todoapp input::-moz-placeholder {
-                font-style: italic;
-                font-weight: 300;
-                color: #e6e6e6;
-            }
-
-            .todoapp input::input-placeholder {
-                font-style: italic;
-                font-weight: 300;
-                color: #e6e6e6;
-            }
-
             .new-todo {
-                position: relative;
-                margin: 0;
-                width: 100%;
-                font-size: 24px;
-                font-family: inherit;
-                font-weight: inherit;
-                line-height: 1.4em;
-                color: inherit;
-                box-sizing: border-box;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-
                 padding: 16px 16px 16px 60px;
                 border: none;
                 background: rgba(0, 0, 0, 0.003);
@@ -227,26 +205,26 @@
         </div>
 
         <section class="todoapp">
-            <td-input on-td-input-commit="addTodoAction"
-                      on-td-input-cancel="cancelAddTodoAction">
+            <todo-input on-td-input-commit="addTodoAction"
+                        on-td-input-cancel="cancelAddTodoAction">
                 <input id="new-todo" class="new-todo" placeholder="What needs to be done?" autofocus>
-            </td-input>
+            </todo-input>
 
             <template is="dom-if" if="[[items.length]]">
                 <section class="main">
                     <input class="toggle-all" id="toggle-all" type="checkbox" checked="[[allCompleted]]"
                            on-change="toggleAllCompletedAction">
                     <label for="toggle-all">Mark all as complete</label>
-                    <ul class="todo-list" on-td-destroy-item="destroyItemAction">
+                    <div class="todo-list" on-td-destroy-item="destroyItemAction">
                         <template is="dom-repeat" items="{{items}}">
-                            <td-item item="{{item}}"></td-item>
+                            <todo-item item="{{item}}"></todo-item>
                         </template>
-                    </ul>
+                    </div>
                 </section>
 
                 <footer class="footer">
                     <span class="todo-count">
-                        <strong>{{activeCount}}</strong><span>item(s) left</span>
+                        <strong>{{activeCount}}</strong><span> item(s) left</span>
                     </span>
 
                     <div class="filters">
@@ -255,11 +233,10 @@
                         <li><a router-link href="completed" class$="{{_computeLinkClass(route, '/completed')}}">Completed</a></li>
                     </div>
 
-                    <template is="dom-if" if="{{anyCompleted}}">
+                    <template is="dom-if" if="[[anyCompleted]]">
                         <button class="clear-completed" on-tap="clearCompletedAction"
                                 style="visibility:visible">Clear completed</button>
                     </template>
-
                 </footer>
             </template>
         </section>
@@ -280,13 +257,26 @@
                 return {
                     items: {
                         type: Array,
-                        value: () => [1, 2, 3]
+                        value: () => [
+                            {
+                                title: 'Get a running Flow app skeleton',
+                                completed: true
+                            },
+                            {
+                                title: 'Copy custom elements from a Polymer 2 app',
+                                completed: false
+                            },
+                            {
+                                title: 'Move business logic to Flow',
+                                completed: false
+                            }
+                        ]
                     },
                     allCompleted: {
                         type: Boolean,
                         value: false
                     },
-                    anyCompleter: {
+                    anyCompleted: {
                         type: Boolean,
                         value: true
                     },
