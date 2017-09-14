@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
 
@@ -206,7 +207,7 @@
 
         <section class="todoapp">
             <todo-input on-td-input-commit="addTodoAction"
-                        on-td-input-cancel="cancelAddTodoAction">
+                        on-td-input-cancel="_cancelAddTodoAction">
                 <input id="new-todo" class="new-todo" placeholder="What needs to be done?" autofocus>
             </todo-input>
 
@@ -224,13 +225,13 @@
 
                 <footer class="footer">
                     <span class="todo-count">
-                        <strong>{{activeCount}}</strong><span> item(s) left</span>
+                        <strong>[[activeCount]]</strong> [[_pluralize('item', activeCount)]] left
                     </span>
 
                     <div class="filters">
-                        <li><a router-link href="" class$="{{_computeLinkClass(route, '')}}">All</a></li>
-                        <li><a router-link href="active" class$="{{_computeLinkClass(route, '/active')}}">Active</a></li>
-                        <li><a router-link href="completed" class$="{{_computeLinkClass(route, '/completed')}}">Completed</a></li>
+                        <li><a router-link href="" class$="[[_computeLinkClass(route, '')]]">All</a></li>
+                        <li><a router-link href="active" class$="[[_computeLinkClass(route, 'active')]]">Active</a></li>
+                        <li><a router-link href="completed" class$="[[_computeLinkClass(route, 'completed')]]">Completed</a></li>
                     </div>
 
                     <template is="dom-if" if="[[anyCompleted]]">
@@ -249,9 +250,26 @@
     </template>
     
     <script>
-        class TodoApp extends Polymer.Element {
+        class TodoApp extends Polymer.GestureEventListeners(Polymer.Element) {
             static get is() {
                 return 'todo-app'
+            }
+
+            _pluralize(word, qty) {
+                return qty > 1 ? word + 's' : word;
+            }
+
+            _computeLinkClass(currentRoute, linkRoute) {
+                return currentRoute === linkRoute ? 'selected' : '';
+            }
+
+            _cancelAddTodoAction() {
+                // This event has to be handled at the client side because the server side input's value
+                // in some cases gets synced after the 'on-td-input-cancel' even is triggered (pressing Esc
+                // before the browser triggers a 'change' event for the input).
+                // In such cases setting the input value to '' at the server side is a no-op (since from the
+                // server perspective that value already is '', so there is nothing to do).
+                this.$['new-todo'].value = '';
             }
         }
         customElements.define(TodoApp.is, TodoApp);

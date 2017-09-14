@@ -15,21 +15,26 @@
  */
 package com.vaadin.flow.demo.helloworld;
 
-import com.vaadin.annotations.HtmlImport;
-import com.vaadin.annotations.StyleSheet;
-import com.vaadin.annotations.Tag;
+import com.vaadin.annotations.*;
+import com.vaadin.flow.html.Input;
 import com.vaadin.flow.router.LocationChangeEvent;
 import com.vaadin.flow.router.View;
 import com.vaadin.flow.template.PolymerTemplate;
 import com.vaadin.flow.template.model.TemplateModel;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag("todo-app")
 @HtmlImport("frontend://components/todo-app.html")
 @StyleSheet("context://styles.css")
 public class TodoApp extends PolymerTemplate<TodoApp.Model> implements View {
+
+    @Id("new-todo")
+    private Input newTodoInput;
+    private List<Item> items;
+
     public static class Item {
         private String title;
         private boolean completed;
@@ -77,14 +82,44 @@ public class TodoApp extends PolymerTemplate<TodoApp.Model> implements View {
     }
 
     public TodoApp() {
-        setItems(Arrays.asList(
-                new Item("Get a running Flow app skeleton", true),
-                new Item("Copy custom elements from a Polymer 2 app", false),
-                new Item("Move business logic to Flow", false)));
+        items = new ArrayList<>(3);
+        items.add(new Item("Get a running Flow app skeleton", true));
+        items.add(new Item("Copy custom elements from a Polymer 2 app", false));
+        items.add(new Item("Move business logic to Flow", false));
+        setItems(items);
     }
 
     @Override
     public void onLocationChange(LocationChangeEvent locationChangeEvent) {
         getModel().setRoute(locationChangeEvent.getLocation().getFirstSegment());
+    }
+
+    @EventHandler
+    private void addTodoAction() {
+        String title = newTodoInput.getValue().trim();
+        if (!title.isEmpty()) {
+            items.add(new Item(title, false));
+            setItems(items);
+        }
+        newTodoInput.clear();
+    }
+
+    @EventHandler
+    private void destroyItemAction(@ModelItem("event.detail") Item item) {
+        int index = getModel().getListProxy("items", Item.class).indexOf(item);
+        items.remove(index);
+        setItems(items);
+    }
+
+    @EventHandler
+    private void toggleAllCompletedAction(@EventData("event.target.checked") boolean completed) {
+        items.forEach(item -> item.setCompleted(completed));
+        setItems(items);
+    }
+
+    @EventHandler
+    private void clearCompletedAction() {
+        items = items.stream().filter(item -> !item.isCompleted()).collect(Collectors.toList());
+        setItems(items);
     }
 }

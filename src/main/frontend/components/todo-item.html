@@ -1,5 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
+<link rel="import" href="../../bower_components/polymer/lib/utils/render-status.html">
 
 <link rel="import" href="todo-input.html">
 
@@ -145,7 +146,7 @@
             </template>
             <template is="dom-if" if="{{editing}}">
                 <todo-input on-td-input-commit="_commitAction"
-                          on-td-input-cancel="_cancelAction">
+                            on-td-input-cancel="_cancelAction">
                     <input id="edit" class="edit" value="{{_editingValue::input}}" on-blur="_onBlur">
                 </todo-input>
             </template>
@@ -179,6 +180,38 @@
                     classes.push('editing');
                 }
                 return classes.join(' ');
+            }
+
+            _onBlur () {
+                this._commitAction();
+                this.editing = false;
+            }
+
+            _editAction () {
+                this.editing = true;
+                this._editingValue = this.item.title;
+                // Wait one tick template to stamp.
+                Polymer.RenderStatus.afterNextRender(this, () => {
+                    this.shadowRoot.querySelector('#edit').focus();
+                });
+            }
+
+            _commitAction () {
+                if (this.editing) {
+                    this.editing = false;
+                    this.set('item.title', this._editingValue.trim());
+                    if (this.item.title === '') {
+                        this._destroyAction();
+                    }
+                }
+            }
+
+            _cancelAction () {
+                this.editing = false;
+            }
+
+            _destroyAction () {
+                this.dispatchEvent(new CustomEvent('td-destroy-item', {detail: this.item, bubbles: true}));
             }
         }
 
