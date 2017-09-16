@@ -216,9 +216,9 @@
                     <input class="toggle-all" id="toggle-all" type="checkbox" checked="[[allCompleted]]"
                            on-change="toggleAllCompletedAction">
                     <label for="toggle-all">Mark all as complete</label>
-                    <div class="todo-list" on-td-destroy-item="destroyItemAction">
-                        <template is="dom-repeat" items="{{items}}">
-                            <todo-item item="{{item}}"></todo-item>
+                    <div class="todo-list" on-td-destroy-item="destroyItemAction" on-td-update-item="updateItemAction">
+                        <template is="dom-repeat" items="[[items]]">
+                            <todo-item item="[[item]]"></todo-item>
                         </template>
                     </div>
                 </section>

@@ -105,14 +105,27 @@ public class TodoApp extends PolymerTemplate<TodoApp.Model> implements View {
     }
 
     @EventHandler
-    private void destroyItemAction(@ModelItem("event.detail") Item item) {
+    private void destroyItemAction(
+            @ModelItem("event.detail") Item item) {
         int index = getModel().getListProxy("items", Item.class).indexOf(item);
         items.remove(index);
         setItems(items);
     }
 
     @EventHandler
-    private void toggleAllCompletedAction(@EventData("event.target.checked") boolean completed) {
+    private void updateItemAction(
+            @ModelItem("event.detail.item") Item item,
+            @EventData("event.detail.title") String title,
+            @EventData("event.detail.completed") boolean completed) {
+        int index = getModel().getListProxy("items", Item.class).indexOf(item);
+        items.get(index).setTitle(title);
+        items.get(index).setCompleted(completed);
+        setItems(items);
+    }
+
+    @EventHandler
+    private void toggleAllCompletedAction(
+            @EventData("event.target.checked") boolean completed) {
         items.forEach(item -> item.setCompleted(completed));
         setItems(items);
     }

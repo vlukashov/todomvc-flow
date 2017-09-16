@@ -135,16 +135,17 @@
                 margin-bottom: -1px;
             }
         </style>
-        <span id="item" class$="[[_getLiClassList(item.completed, editing)]]">
-            <template is="dom-if" if="{{!editing}}">
+        <span id="item" class$="[[_getLiClassList(_item.completed, editing)]]">
+            <template is="dom-if" if="[[!editing]]">
                 <div on-dblclick="_editAction">
                     <input type="checkbox" class="toggle"
-                           checked="{{item.completed::change}}">
-                    <label>{{item.title}}</label>
+                           checked="[[_item.completed]]"
+                           on-change="_toggleCompletedAction">
+                    <label>[[_item.title]]</label>
                     <button class="destroy" on-tap="_destroyAction"></button>
                 </div>
             </template>
-            <template is="dom-if" if="{{editing}}">
+            <template is="dom-if" if="[[editing]]">
                 <todo-input on-td-input-commit="_commitAction"
                             on-td-input-cancel="_cancelAction">
                     <input id="edit" class="edit" value="{{_editingValue::input}}" on-blur="_onBlur">
@@ -161,6 +162,9 @@
                     item: {
                         type: Object
                     },
+                    _item: {
+                        type: Object,
+                    },
                     editing: {
                         type: Boolean,
                         value: false
@@ -169,6 +173,15 @@
                         type: String
                     }
                 };
+            }
+            static get observers() {
+                return [
+                    '_onItemChanged(item, item.*)'
+                ];
+            }
+
+            _onItemChanged(current, previous) {
+                this._item = Object.assign({}, this.item);
             }
 
             _getLiClassList(completed, editing) {
@@ -189,7 +202,7 @@
 
             _editAction () {
                 this.editing = true;
-                this._editingValue = this.item.title;
+                this._editingValue = this._item.title;
                 // Wait one tick template to stamp.
                 Polymer.RenderStatus.afterNextRender(this, () => {
                     this.shadowRoot.querySelector('#edit').focus();
@@ -199,9 +212,11 @@
             _commitAction () {
                 if (this.editing) {
                     this.editing = false;
-                    this.set('item.title', this._editingValue.trim());
-                    if (this.item.title === '') {
+                    this._item.title = this._editingValue.trim();
+                    if (this._item.title === '') {
                         this._destroyAction();
+                    } else {
+                        this._updateAction();
                     }
                 }
             }
@@ -212,6 +227,18 @@
 
             _destroyAction () {
                 this.dispatchEvent(new CustomEvent('td-destroy-item', {detail: this.item, bubbles: true}));
+            }
+
+            _toggleCompletedAction() {
+                this._item.completed = !this._item.completed;
+                this._updateAction();
+            }
+
+            _updateAction() {
+                this.dispatchEvent(new CustomEvent('td-update-item', {detail: {
+                    item: this.item,
+                    title: this._item.title,
+                    completed: this._item.completed}, bubbles: true}));
             }
         }
 
