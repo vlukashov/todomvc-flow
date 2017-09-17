@@ -226,7 +226,7 @@
             }
 
             _destroyAction () {
-                this.dispatchEvent(new CustomEvent('td-destroy-item', {detail: this.item, bubbles: true}));
+                this.dispatchEvent(new CustomEvent('td-destroy-item', {detail: this.item.id, bubbles: true}));
             }
 
             _toggleCompletedAction() {
@@ -236,7 +236,7 @@
 
             _updateAction() {
                 this.dispatchEvent(new CustomEvent('td-update-item', {detail: {
-                    item: this.item,
+                    id: this.item.id,
                     title: this._item.title,
                     completed: this._item.completed}, bubbles: true}));
             }

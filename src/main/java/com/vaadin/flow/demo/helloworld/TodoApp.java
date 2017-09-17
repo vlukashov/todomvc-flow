@@ -22,8 +22,8 @@ import com.vaadin.flow.router.View;
 import com.vaadin.flow.template.PolymerTemplate;
 import com.vaadin.flow.template.model.TemplateModel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Tag("todo-app")
@@ -33,18 +33,31 @@ public class TodoApp extends PolymerTemplate<TodoApp.Model> implements View {
 
     @Id("new-todo")
     private Input newTodoInput;
-    private List<Item> items;
+    private List<Item> allItems;
+    private String filter;
 
     public static class Item {
+        private int id;
         private String title;
         private boolean completed;
+        private static AtomicInteger counter = new AtomicInteger(1);
 
         public Item() {
         }
 
-        public Item(String title, boolean completed) {
+        private Item(int id, String title, boolean completed) {
+            this.id = id;
             this.title = title;
             this.completed = completed;
+        }
+
+        public static Item create(String title, boolean completed) {
+            int id = counter.addAndGet(1);
+            return new Item(id, title, completed);
+        }
+
+        public int getId() {
+            return id;
         }
 
         public String getTitle() {
@@ -72,67 +85,98 @@ public class TodoApp extends PolymerTemplate<TodoApp.Model> implements View {
         void setRoute(String route);
     }
 
-    private void setItems(List<Item> items) {
-        getModel().setItems(items);
-
-        int completedCount = (int) items.stream().filter(Item::isCompleted).count();
-        getModel().setActiveCount(items.size() - completedCount);
-        getModel().setAllCompleted(completedCount == items.size());
-        getModel().setAnyCompleted(completedCount > 0);
+    public TodoApp() {
+        allItems = new ArrayList<>(3);
+        allItems.add(Item.create("Get a running Flow app skeleton", true));
+        allItems.add(Item.create("Copy custom elements from a Polymer 2 app", false));
+        allItems.add(Item.create("Move business logic to Flow", false));
     }
 
-    public TodoApp() {
-        items = new ArrayList<>(3);
-        items.add(new Item("Get a running Flow app skeleton", true));
-        items.add(new Item("Copy custom elements from a Polymer 2 app", false));
-        items.add(new Item("Move business logic to Flow", false));
-        setItems(items);
+    private void setFilter(String filter) {
+        if (filter == null) {
+            filter = "";
+        }
+
+        filter = filter.trim().toLowerCase(Locale.ENGLISH);
+        if (!"active".equals(filter) && !"completed".equals(filter)) {
+            filter = "";
+        }
+
+        if (!filter.equals(this.filter)) {
+            this.filter = filter;
+            updateModel(allItems, filter);
+        }
+    }
+
+    private void updateModel(List<Item> allItems, String filter) {
+        List<Item> items = allItems;
+        if ("active".equals(filter)) {
+            items = allItems.stream().filter(item -> !item.isCompleted()).collect(Collectors.toList());
+        } else if ("completed".equals(filter)) {
+            items = allItems.stream().filter(item -> item.isCompleted()).collect(Collectors.toList());
+        }
+
+        getModel().setItems(items);
+
+        int completedCount = (int) allItems.stream().filter(Item::isCompleted).count();
+        getModel().setActiveCount(allItems.size() - completedCount);
+        getModel().setAllCompleted(completedCount == allItems.size());
+        getModel().setAnyCompleted(completedCount > 0);
+
+        getModel().setRoute(filter);
     }
 
     @Override
     public void onLocationChange(LocationChangeEvent locationChangeEvent) {
-        getModel().setRoute(locationChangeEvent.getLocation().getFirstSegment());
+        setFilter(locationChangeEvent.getLocation().getFirstSegment().toLowerCase());
     }
 
     @EventHandler
     private void addTodoAction() {
         String title = newTodoInput.getValue().trim();
         if (!title.isEmpty()) {
-            items.add(new Item(title, false));
-            setItems(items);
+            allItems.add(Item.create(title, false));
+            updateModel(allItems, filter);
         }
         newTodoInput.clear();
     }
 
     @EventHandler
     private void destroyItemAction(
-            @ModelItem("event.detail") Item item) {
-        int index = getModel().getListProxy("items", Item.class).indexOf(item);
-        items.remove(index);
-        setItems(items);
+            @EventData("event.detail") int id) {
+        allItems.removeIf(item -> item.getId() == id);
+        updateModel(allItems, filter);
     }
 
     @EventHandler
     private void updateItemAction(
-            @ModelItem("event.detail.item") Item item,
+            @EventData("event.detail.id") int id,
             @EventData("event.detail.title") String title,
             @EventData("event.detail.completed") boolean completed) {
-        int index = getModel().getListProxy("items", Item.class).indexOf(item);
-        items.get(index).setTitle(title);
-        items.get(index).setCompleted(completed);
-        setItems(items);
+        Optional<Item> allItemsItem = allItems.stream().filter(item -> item.getId() == id).findFirst();
+        allItemsItem.ifPresent(item -> {
+            item.setTitle(title);
+            item.setCompleted(completed);
+            updateModel(allItems, filter);
+        });
     }
 
     @EventHandler
     private void toggleAllCompletedAction(
             @EventData("event.target.checked") boolean completed) {
-        items.forEach(item -> item.setCompleted(completed));
-        setItems(items);
+        Set<Integer> displayedIds = getModel().getListProxy("items", Item.class)
+                .stream().map(Item::getId).collect(Collectors.toSet());
+        allItems.forEach(item -> {
+            if (displayedIds.contains(item.getId())) {
+                item.setCompleted(completed);
+            }
+        });
+        updateModel(allItems, filter);
     }
 
     @EventHandler
     private void clearCompletedAction() {
-        items = items.stream().filter(item -> !item.isCompleted()).collect(Collectors.toList());
-        setItems(items);
+        allItems = allItems.stream().filter(item -> !item.isCompleted()).collect(Collectors.toList());
+        updateModel(allItems, filter);
     }
 }
