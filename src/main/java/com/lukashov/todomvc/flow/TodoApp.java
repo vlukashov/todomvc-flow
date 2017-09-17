@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.demo.helloworld;
+package com.lukashov.todomvc.flow;
 
 import com.vaadin.annotations.*;
 import com.vaadin.flow.html.Input;
@@ -23,7 +23,6 @@ import com.vaadin.flow.template.PolymerTemplate;
 import com.vaadin.flow.template.model.TemplateModel;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Tag("todo-app")
@@ -36,47 +35,6 @@ public class TodoApp extends PolymerTemplate<TodoApp.Model> implements View {
     private List<Item> allItems;
     private String filter;
 
-    public static class Item {
-        private int id;
-        private String title;
-        private boolean completed;
-        private static AtomicInteger counter = new AtomicInteger(1);
-
-        public Item() {
-        }
-
-        private Item(int id, String title, boolean completed) {
-            this.id = id;
-            this.title = title;
-            this.completed = completed;
-        }
-
-        public static Item create(String title, boolean completed) {
-            int id = counter.addAndGet(1);
-            return new Item(id, title, completed);
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public boolean isCompleted() {
-            return completed;
-        }
-
-        public void setCompleted(boolean completed) {
-            this.completed = completed;
-        }
-    }
-
     public interface Model extends TemplateModel {
         void setItems(List<Item> items);
         void setAllCompleted(boolean allCompleted);
@@ -87,9 +45,9 @@ public class TodoApp extends PolymerTemplate<TodoApp.Model> implements View {
 
     public TodoApp() {
         allItems = new ArrayList<>(3);
-        allItems.add(Item.create("Get a running Flow app skeleton", true));
-        allItems.add(Item.create("Copy custom elements from a Polymer 2 app", false));
-        allItems.add(Item.create("Move business logic to Flow", false));
+        allItems.add(new Item("Get a running Flow app skeleton", true));
+        allItems.add(new Item("Copy custom elements from a Polymer 2 app", false));
+        allItems.add(new Item("Move business logic to Flow", false));
     }
 
     private void setFilter(String filter) {
@@ -135,7 +93,7 @@ public class TodoApp extends PolymerTemplate<TodoApp.Model> implements View {
     private void addTodoAction() {
         String title = newTodoInput.getValue().trim();
         if (!title.isEmpty()) {
-            allItems.add(Item.create(title, false));
+            allItems.add(new Item(title, false));
             updateModel(allItems, filter);
         }
         newTodoInput.clear();
